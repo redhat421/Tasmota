@@ -23,8 +23,8 @@
 #include "tasmota_options.h"
 #if defined(USE_TLS)
 
-// #define DEBUG_TLS
-// #define DEBUG_ESP_SSL
+#define DEBUG_TLS
+#define DEBUG_ESP_SSL
 
 #define LWIP_INTERNAL
 
@@ -167,7 +167,7 @@ unsigned char *min_br_ssl_engine_sendrec_buf(const br_ssl_engine_context *cc, si
 
 #endif // ESP8266
 
-//#define DEBUG_ESP_SSL
+#define DEBUG_ESP_SSL
 #ifdef DEBUG_ESP_SSL
 //#define DEBUG_BSSL(fmt, ...)  DEBUG_ESP_PORT.printf_P((PGM_P)PSTR( "BSSL:" fmt), ## __VA_ARGS__)
 #define DEBUG_BSSL(fmt, ...)  Serial.printf(fmt, ## __VA_ARGS__)
@@ -900,6 +900,7 @@ extern "C" {
 
     // install hashes
     br_ssl_engine_set_hash(&cc->eng, br_sha256_ID, &br_sha256_vtable);
+    br_ssl_engine_set_hash(&cc->eng, br_sha384_ID, &br_sha384_vtable);
     br_ssl_engine_set_prf_sha256(&cc->eng, &br_tls12_sha256_prf);
 
     // AES CTR/GCM small version, not contstant time (we don't really care here as there is no TPM anyways)
@@ -957,6 +958,8 @@ bool WiFiClientSecure_light::_connectSSL(const char* hostName) {
     br_x509_minimal_init(x509_minimal, &br_sha256_vtable, _ta_P, _ta_size);
     br_x509_minimal_set_rsa(x509_minimal, br_ssl_engine_get_rsavrfy(_eng));
     br_x509_minimal_set_hash(x509_minimal, br_sha256_ID, &br_sha256_vtable);
+    br_x509_minimal_set_hash(x509_minimal, br_sha384_ID, &br_sha384_vtable);
+    br_x509_minimal_set_hash(x509_minimal, br_sha512_ID, &br_sha512_vtable);
     br_ssl_engine_set_x509(_eng, &x509_minimal->vtable);
     uint32_t now = UtcTime();
     uint32_t cfg_time = CfgTime();
